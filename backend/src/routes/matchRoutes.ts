@@ -1,5 +1,13 @@
 import { Router } from 'express';
-import { getPotentialMatches, likeProfile, passProfile, getMatches, unmatch } from '../controllers/matchController';
+import {
+  getPotentialMatches,
+  likeProfile,
+  passProfile,
+  getMatches,
+  unmatch,
+  scheduleVerification,
+  getVerificationStatus,
+} from '../controllers/matchController';
 import { authenticate } from '../middleware/auth';
 import { rateLimiter } from '../middleware/rateLimiter';
 
@@ -20,5 +28,9 @@ router.get('/matches', getMatches);
 
 // Unmatch
 router.post('/unmatch/:matchId', unmatch);
+
+// Video verification routes
+router.post('/verify/:matchId/schedule', scheduleVerification);
+router.get('/verify/:matchId/status', getVerificationStatus);
 
 export default router; 

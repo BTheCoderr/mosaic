@@ -7,11 +7,12 @@ import Icon from 'react-native-vector-icons/Ionicons'
 // Screens
 import HomeScreen from '../features/home/screens/HomeScreen'
 import ChatListScreen from '../features/chat/screens/ChatListScreen'
+import MatchesScreen from '../features/matches/screens/MatchesScreen'
 import ProfileScreen from '../features/profile/screens/ProfileScreen'
 
 const Tab = createBottomTabNavigator<MainTabParamList>()
 
-export const MainTabNavigator = () => {
+export const MainNavigator = () => {
   const { colors, isDark } = useTheme()
 
   return (
@@ -44,6 +45,15 @@ export const MainTabNavigator = () => {
         options={{
           tabBarIcon: ({ color, size }) => (
             <Icon name="chatbubbles-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Matches"
+        component={MatchesScreen}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <Icon name="heart-outline" size={size} color={color} />
           ),
         }}
       />

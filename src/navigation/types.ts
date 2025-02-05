@@ -14,8 +14,8 @@ export type AuthStackParamList = {
 }
 
 export type RootStackParamList = {
-  Main: NavigatorScreenParams<MainTabParamList>
   Auth: NavigatorScreenParams<AuthStackParamList>
+  Main: NavigatorScreenParams<MainTabParamList>
   Settings: undefined
   EditProfile: undefined
   ChatRoom: { chatId: string; userName: string }

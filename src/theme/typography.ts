@@ -1,20 +1,35 @@
 import { Platform } from 'react-native'
 
-const fontFamily = Platform.select({
-  ios: {
-    regular: 'System',
-    medium: 'System',
-    bold: 'System',
-  },
-  android: {
-    regular: 'Roboto',
-    medium: 'Roboto-Medium',
-    bold: 'Roboto-Bold',
-  },
-})
+const getFontFamily = (weight: string) => {
+  if (Platform.OS === 'ios') {
+    return {
+      fontFamily: 'System',
+      fontWeight: weight,
+    }
+  }
+  
+  // Android font mappings
+  const fontMappings: { [key: string]: string } = {
+    '400': 'Roboto',
+    '500': 'Roboto-Medium',
+    '600': 'Roboto-Medium',
+    '700': 'Roboto-Bold',
+    '900': 'Roboto-Black',
+  }
+  
+  return {
+    fontFamily: fontMappings[weight] || 'Roboto',
+    fontWeight: weight,
+  }
+}
 
 export const typography = {
-  fonts: fontFamily,
+  fonts: {
+    regular: getFontFamily('400'),
+    medium: getFontFamily('500'),
+    bold: getFontFamily('700'),
+    heavy: getFontFamily('900'),
+  },
   
   // Font sizes
   sizes: {
@@ -32,6 +47,7 @@ export const typography = {
     regular: '400',
     medium: '500',
     bold: '700',
+    heavy: '900',
   },
   
   // Line heights
@@ -45,32 +61,32 @@ export const typography = {
   variants: {
     h1: {
       fontSize: 32,
-      fontWeight: '700',
+      ...getFontFamily('700'),
       lineHeight: 1.2,
     },
     h2: {
       fontSize: 24,
-      fontWeight: '700',
+      ...getFontFamily('700'),
       lineHeight: 1.2,
     },
     h3: {
       fontSize: 20,
-      fontWeight: '600',
+      ...getFontFamily('600'),
       lineHeight: 1.2,
     },
     body1: {
       fontSize: 16,
-      fontWeight: '400',
+      ...getFontFamily('400'),
       lineHeight: 1.5,
     },
     body2: {
       fontSize: 14,
-      fontWeight: '400',
+      ...getFontFamily('400'),
       lineHeight: 1.5,
     },
     caption: {
       fontSize: 12,
-      fontWeight: '400',
+      ...getFontFamily('400'),
       lineHeight: 1.5,
     },
   },

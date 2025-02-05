@@ -11,14 +11,24 @@ type Theme = {
   isDark: boolean
 }
 
-const ThemeContext = createContext<Theme | undefined>(undefined)
+// Create initial theme value
+const initialTheme: Theme = {
+  colors,
+  spacing,
+  typography,
+  isDark: false,
+}
+
+const ThemeContext = createContext<Theme>(initialTheme)
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const colorScheme = useColorScheme()
   const [isDark, setIsDark] = useState(colorScheme === 'dark')
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
     setIsDark(colorScheme === 'dark')
+    setMounted(true)
   }, [colorScheme])
 
   const theme: Theme = {
@@ -26,6 +36,10 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     spacing,
     typography,
     isDark,
+  }
+
+  if (!mounted) {
+    return null // or a loading indicator if you prefer
   }
 
   return (
@@ -37,8 +51,5 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
 export const useTheme = () => {
   const theme = useContext(ThemeContext)
-  if (!theme) {
-    throw new Error('useTheme must be used within a ThemeProvider')
-  }
   return theme
 } 

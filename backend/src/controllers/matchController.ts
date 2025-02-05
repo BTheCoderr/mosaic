@@ -4,6 +4,7 @@ import { Profile } from '../models/Profile';
 import { Match, MatchStatus } from '../models/Match';
 import { MatchingService } from '../services/matchingService';
 import { redis } from '../config/redis';
+import { VideoChatService } from '../services/videoChat/videoChatService';
 
 const profileRepository = AppDataSource.getRepository(Profile);
 const matchRepository = AppDataSource.getRepository(Match);
@@ -58,14 +59,14 @@ export const likeProfile = async (req: Request, res: Response) => {
       if (match.user2.id === userId && !match.user2Liked) {
         match.user2Liked = true;
         if (match.user1Liked) {
-          match.status = MatchStatus.MATCHED;
+          match.status = MatchStatus.PENDING_VERIFICATION;
         }
       }
       // If current user is user1 and hasn't liked yet
       else if (match.user1.id === userId && !match.user1Liked) {
         match.user1Liked = true;
         if (match.user2Liked) {
-          match.status = MatchStatus.MATCHED;
+          match.status = MatchStatus.PENDING_VERIFICATION;
         }
       }
     } else {
@@ -79,21 +80,18 @@ export const likeProfile = async (req: Request, res: Response) => {
 
     const savedMatch = await matchRepository.save(match);
 
-    // If it's a mutual match, send insights
-    if (savedMatch.status === MatchStatus.MATCHED) {
+    // If it's a mutual match, prompt for verification
+    if (savedMatch.status === MatchStatus.PENDING_VERIFICATION) {
       const [profile1, profile2] = await Promise.all([
         profileRepository.findOne({ where: { user: { id: userId } } }),
         profileRepository.findOne({ where: { user: { id: targetUserId } } })
       ]);
 
       if (profile1 && profile2) {
-        const insights = MatchingService.getMatchingInsights(profile1, profile2);
-        const eventSuggestions = MatchingService.suggestEvents(profile1, profile2);
         return res.json({
           match: savedMatch,
-          insights,
-          eventSuggestions,
-          message: 'It\'s a match! 🎉'
+          message: "It's a match! Schedule a video chat to verify your profiles.",
+          requiresVerification: true
         });
       }
     }
@@ -197,5 +195,64 @@ export const unmatch = async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Error unmatching:', error);
     res.status(500).json({ error: 'Failed to unmatch' });
+  }
+};
+
+export const scheduleVerification = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user!.id;
+    const { matchId } = req.params;
+    const { scheduledTime } = req.body;
+
+    const match = await matchRepository.findOne({
+      where: { id: matchId },
+      relations: ['user1', 'user2']
+    });
+
+    if (!match) {
+      return res.status(404).json({ error: 'Match not found' });
+    }
+
+    // Verify user is part of the match
+    if (match.user1.id !== userId && match.user2.id !== userId) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+
+    await videoChatService.scheduleVerification(matchId, new Date(scheduledTime));
+
+    res.json({
+      message: 'Verification scheduled successfully',
+      scheduledTime
+    });
+  } catch (error) {
+    console.error('Error scheduling verification:', error);
+    res.status(500).json({ error: 'Failed to schedule verification' });
+  }
+};
+
+export const getVerificationStatus = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user!.id;
+    const { matchId } = req.params;
+
+    const match = await matchRepository.findOne({
+      where: { id: matchId },
+      relations: ['user1', 'user2']
+    });
+
+    if (!match) {
+      return res.status(404).json({ error: 'Match not found' });
+    }
+
+    // Verify user is part of the match
+    if (match.user1.id !== userId && match.user2.id !== userId) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+
+    const status = await videoChatService.getVerificationStatus(matchId);
+    res.json(status);
+  } catch (error) {
+    console.error('Error getting verification status:', error);
+    res.status(500).json({ error: 'Failed to get verification status' });
   }
 }; 

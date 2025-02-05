@@ -3,6 +3,11 @@ import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { RootStackParamList } from './types'
 import { useTheme } from '../theme/ThemeProvider'
+import { AuthNavigator } from '../features/auth/navigation/AuthNavigator'
+import { MainNavigator } from './MainTabNavigator'
+import SettingsScreen from '../features/settings/screens/SettingsScreen'
+import EditProfileScreen from '../features/profile/screens/EditProfileScreen'
+import ChatRoomScreen from '../features/chat/screens/ChatRoomScreen'
 
 const Stack = createNativeStackNavigator<RootStackParamList>()
 
@@ -28,9 +33,14 @@ export const RootNavigator = () => {
           headerShown: false,
         }}
       >
-        {/* Add your screens here */}
-        <Stack.Screen name="Auth" component={AuthNavigator} />
-        <Stack.Screen name="Main" component={MainNavigator} />
+        <Stack.Screen 
+          name="Auth" 
+          component={AuthNavigator}
+        />
+        <Stack.Screen 
+          name="Main" 
+          component={MainNavigator}
+        />
         <Stack.Screen 
           name="Settings" 
           component={SettingsScreen}
