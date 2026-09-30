@@ -1,5 +1,11 @@
 # Mosaic
 
+<!-- repo-intro:start -->
+**Project snapshot:** Mosaic is a cross-cultural dating-app prototype exploring profile creation, matching, real-time chat, location-aware discovery, and a typed mobile/full-stack architecture.
+
+**What it demonstrates:** React Native · TypeScript · Node/Express · PostgreSQL · Redis/WebSockets.
+<!-- repo-intro:end -->
+
 A modern dating app focused on meaningful connections across cultures. Built with React Native, TypeScript, and Node.js.
 
 ## Features
